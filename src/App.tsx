@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Camera as CameraIcon, Loader, CheckCircle, Sparkles } from 'lucide-react';
 import Camera from './components/Camera';
 import PhotoFeed from './components/PhotoFeed';
+import Login from './components/Login';
 import { savePhoto, getPhotos, deletePhoto } from './lib/photoService';
 import type { Photo } from './types/Photo';
 
 function App() {
+  const [user, setUser] = useState<string | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [showCamera, setShowCamera] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -14,8 +16,18 @@ function App() {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const previousPhotosCountRef = useRef(0);
 
-  // Cargar fotos al iniciar
+  // Verificar sesión
   useEffect(() => {
+    const savedUser = localStorage.getItem('photoPartyUser');
+    if (savedUser) {
+      setUser(savedUser);
+    }
+  }, []);
+
+  // Cargar fotos al iniciar solo si hay usuario
+  useEffect(() => {
+    if (!user) return;
+
     const loadPhotos = async () => {
       setIsLoadingPhotos(true);
       try {
@@ -28,7 +40,7 @@ function App() {
       }
     };
     loadPhotos();
-  }, []);
+  }, [user]);
 
   // Scroll automático al top cuando se agrega una nueva foto
   useEffect(() => {
@@ -83,6 +95,15 @@ function App() {
       setPhotos((prev) => prev.filter((photo) => photo.id !== id));
     }
   }, []);
+
+  const handleLogin = (name: string) => {
+    localStorage.setItem('photoPartyUser', name);
+    setUser(name);
+  };
+
+  if (!user) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   if (isLoadingPhotos) {
     return (
