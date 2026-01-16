@@ -149,17 +149,17 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
       )}
 
       {/* Feed estilo Instagram Premium */}
-      <div className="max-w-2xl mx-auto w-full pb-6">
+      <div className="max-w-2xl mx-auto w-full pb-6 px-4">
         {photos.map((photo, index) => (
           <div
             key={photo.id}
-            className="mb-6 animate-in slide-in-from-bottom-4"
+            className="mb-4 md:mb-6 animate-in slide-in-from-bottom-4"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {/* Card con glassmorphism */}
             <div className="glass-effect rounded-2xl overflow-hidden border border-white/10 shadow-2xl hover:shadow-purple-500/20 transition-all duration-300">
               {/* Header de la foto */}
-              <div className="px-4 py-3 flex items-center justify-between border-b border-white/5">
+              <div className="px-3 py-2 md:px-4 md:py-3 flex items-center justify-between border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white shadow-lg">
                     📸
@@ -179,7 +179,7 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
                   <img
                     src={photo.imageUrl}
                     alt={photo.title || 'Foto'}
-                    className="w-full h-auto object-contain max-h-[70vh]"
+                    className="w-full h-auto object-contain max-h-[50vh] md:max-h-[70vh]"
                     loading="lazy"
                     onError={() => handleImageError(photo.id)}
                   />
@@ -187,14 +187,14 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
               </div>
 
               {/* Controles */}
-              <div className="px-4 py-3">
+              <div className="px-3 py-2 md:px-4 md:py-3">
                 {/* Botones de acción principales */}
                 <div className="flex items-center gap-4 mb-3">
                   <button
                     onClick={() => toggleLike(photo.id)}
                     className={`transition-all duration-200 ${likedPhotos.has(photo.id)
-                        ? 'text-red-500 scale-110'
-                        : 'text-gray-400 hover:text-red-400 hover:scale-110'
+                      ? 'text-red-500 scale-110'
+                      : 'text-gray-400 hover:text-red-400 hover:scale-110'
                       }`}
                     aria-label="Me gusta"
                   >
