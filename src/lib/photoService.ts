@@ -26,6 +26,7 @@ function saveLocalPhotos(photos: Photo[]): void {
 
 export async function savePhoto(
   imageBase64: string,
+  userName: string,
   title?: string
 ): Promise<Photo | null> {
   try {
@@ -34,6 +35,7 @@ export async function savePhoto(
     const newPhoto: Photo = {
       id: `local-${Date.now()}-${Math.random()}`,
       imageUrl: imageBase64,
+      userName: userName,
       title: title || undefined,
       createdAt: new Date(),
     };

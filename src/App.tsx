@@ -58,10 +58,13 @@ function App() {
 
   // Guardar foto inmediatamente - actualización optimista
   const handleCapture = useCallback(async (imageSrc: string) => {
+    if (!user) return;
+
     const tempId = `temp-${Date.now()}-${Math.random()}`;
     const tempPhoto: Photo = {
       id: tempId,
       imageUrl: imageSrc,
+      userName: user,
       title: undefined,
       createdAt: new Date(),
     };
@@ -70,7 +73,7 @@ function App() {
     setShowSaveSuccess(true);
     setIsSaving(true);
 
-    savePhoto(imageSrc)
+    savePhoto(imageSrc, user)
       .then((savedPhoto) => {
         if (savedPhoto) {
           setPhotos((prev) =>

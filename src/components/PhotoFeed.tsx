@@ -165,7 +165,7 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
                     📸
                   </div>
                   <div>
-                    <p className="text-white font-semibold text-sm">PhotoParty</p>
+                    <p className="text-white font-semibold text-sm">{photo.userName || 'PhotoParty'}</p>
                     <p className="text-gray-400 text-xs">{formatDateTime(photo.createdAt)}</p>
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
                 {/* Título si existe */}
                 {photo.title && (
                   <p className="text-white text-sm font-medium mb-2 break-words">
-                    <span className="font-bold">PhotoParty</span> {photo.title}
+                    <span className="font-bold">{photo.userName || 'PhotoParty'}</span> {photo.title}
                   </p>
                 )}
               </div>
