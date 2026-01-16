@@ -144,6 +144,22 @@ function App() {
         <PhotoFeed photos={photos} onDelete={handleDelete} />
       </main>
 
+      {/* Footer */}
+      <footer className="py-4 text-center text-[10px] text-gray-500/50">
+        <p>
+          © Desarrollado por{' '}
+          <a
+            href="https://waveframe.com.ar/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold underline hover:text-gray-400 transition-colors"
+          >
+            WaveFrame Studio
+          </a>{' '}
+          | Todos los derechos reservados.
+        </p>
+      </footer>
+
       {/* Notificación de guardado exitoso */}
       {showSaveSuccess && (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
