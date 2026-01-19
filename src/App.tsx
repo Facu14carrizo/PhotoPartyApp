@@ -327,23 +327,24 @@ function App() {
           }}
           currentUser={user || ''}
         />
+
+        {/* Footer */}
+        <footer className="py-6 mt-auto text-center text-[10px] text-white/40">
+          <p>
+            © Desarrollado por{' '}
+            <a
+              href="https://waveframe.com.ar/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold underline hover:text-gray-400 transition-colors"
+            >
+              WaveFrame Studio
+            </a>{' '}
+            Todos los derechos reservados.
+          </p>
+        </footer>
       </main>
 
-      {/* Footer */}
-      <footer className="py-4 text-center text-[10px] text-white/40">
-        <p>
-          © Desarrollado por{' '}
-          <a
-            href="https://waveframe.com.ar/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold underline hover:text-gray-400 transition-colors"
-          >
-            WaveFrame Studio
-          </a>{' '}
-          | Todos los derechos reservados.
-        </p>
-      </footer>
 
       {/* Notificación de guardado exitoso */}
       {showSaveSuccess && (
