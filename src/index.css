@@ -35,8 +35,7 @@
     overscroll-behavior-y: contain;
     touch-action: pan-y;
     background-color: #1a0f2e;
-    /* Violeta opaco mate */
-    background-attachment: fixed;
+    /* Violeta opaco mate para login */
   }
 
   img {
@@ -230,6 +229,14 @@
 
   .float {
     animation: float 3s ease-in-out infinite;
+  }
+
+  .app-bg {
+    background-image: linear-gradient(rgba(26, 15, 46, 0.85), rgba(26, 15, 46, 0.85)), url('/descarga (1).jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
 
   /* Scrollbar personalizado */

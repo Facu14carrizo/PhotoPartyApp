@@ -258,7 +258,7 @@ function App() {
   }
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden text-white">
+    <div className="h-[100dvh] flex flex-col overflow-hidden text-white app-bg">
       {/* Header con glassmorphism */}
       <header className="glass-effect-dark sticky top-0 z-30 border-b border-white/5 slide-in-from-top shrink-0">
         <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center gap-4">
