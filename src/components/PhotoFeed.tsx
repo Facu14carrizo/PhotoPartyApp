@@ -88,16 +88,26 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
     }
   };
 
-  const downloadPhoto = (photo: Photo) => {
+  const downloadPhoto = async (photo: Photo) => {
     try {
+      const response = await fetch(photo.imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = photo.imageUrl;
+      link.href = url;
       link.download = `photoparty-${photo.id}-${photo.createdAt.getTime()}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error downloading photo:', err);
+      // Fallback simple download
+      const link = document.createElement('a');
+      link.href = photo.imageUrl;
+      link.target = '_blank';
+      link.download = `photoparty-${photo.id}.jpg`;
+      link.click();
     }
   };
 
