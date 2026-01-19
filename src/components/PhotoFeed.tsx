@@ -163,23 +163,22 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto }: PhotoFeed
 
   return (
     <div className="w-full">
-      {/* Botones de acción vaciado */}
-      {/* Botones de acción */}
-      {photos.length > 1 && (
-        <div className="sticky top-0 z-20 glass-effect-dark border-b border-white/5 px-4 py-3 flex gap-3 slide-in-from-top">
-          <button
-            onClick={exportAllPhotos}
-            disabled={isExporting}
-            className="flex-1 btn-secondary text-white px-4 py-3 rounded-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 font-semibold text-sm disabled:opacity-50"
-          >
-            <Package size={18} />
-            <span>Exportar Todas</span>
-          </button>
-        </div>
-      )}
-
       {/* Feed estilo Instagram Premium */}
       <div className="max-w-2xl mx-auto w-full pb-6 px-4">
+        {/* Botones de acción (ahora dentro del feed, no pegado al navbar) */}
+        {photos.length > 1 && (
+          <div className="py-4 flex gap-3 slide-in-from-top">
+            <button
+              onClick={exportAllPhotos}
+              disabled={isExporting}
+              className="flex-1 btn-secondary text-white px-4 py-3 rounded-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 font-semibold text-sm disabled:opacity-50"
+            >
+              <Package size={18} />
+              <span>Exportar Todas</span>
+            </button>
+          </div>
+        )}
+
         {photos.map((photo, index) => (
           <div
             key={photo.id}
