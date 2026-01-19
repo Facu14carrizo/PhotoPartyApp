@@ -80,6 +80,8 @@ export async function savePhoto(
       userName: insertedPhoto.user_name,
       title: insertedPhoto.title || undefined,
       createdAt: new Date(insertedPhoto.created_at),
+      likesCount: insertedPhoto.likes_count || 0,
+      likedBy: insertedPhoto.liked_by || [],
     };
 
   } catch (err) {
@@ -107,6 +109,8 @@ export async function getPhotos(): Promise<Photo[]> {
       userName: p.user_name,
       title: p.title || undefined,
       createdAt: new Date(p.created_at),
+      likesCount: p.likes_count || 0,
+      likedBy: p.liked_by || [],
     }));
   } catch (err) {
     console.error('Error in getPhotos:', err);
@@ -175,6 +179,55 @@ export async function updatePhotoTitle(id: string, title: string): Promise<boole
     return true;
   } catch (err) {
     console.error('Error in updatePhotoTitle:', err);
+    return false;
+  }
+}
+
+export async function toggleLike(photoId: string, userName: string): Promise<boolean> {
+  try {
+    // 1. Obtener estado actual
+    const { data: photo, error: fetchError } = await supabase
+      .from('photos')
+      .select('likes_count, liked_by')
+      .eq('id', photoId)
+      .single();
+
+    if (fetchError || !photo) {
+      console.error('Error fetching photo for like:', fetchError);
+      return false;
+    }
+
+    const currentLikedBy = photo.liked_by || [];
+    const isLiked = currentLikedBy.includes(userName);
+
+    let newLikedBy;
+    let newLikesCount;
+
+    if (isLiked) {
+      newLikedBy = currentLikedBy.filter((u: string) => u !== userName);
+      newLikesCount = Math.max(0, (photo.likes_count || 0) - 1);
+    } else {
+      newLikedBy = [...currentLikedBy, userName];
+      newLikesCount = (photo.likes_count || 0) + 1;
+    }
+
+    // 2. Actualizar en DB
+    const { error: updateError } = await supabase
+      .from('photos')
+      .update({
+        likes_count: newLikesCount,
+        liked_by: newLikedBy
+      })
+      .eq('id', photoId);
+
+    if (updateError) {
+      console.error('Error updating likes:', updateError);
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Error in toggleLike:', err);
     return false;
   }
 }

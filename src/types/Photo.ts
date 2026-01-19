@@ -4,4 +4,6 @@ export interface Photo {
   userName?: string;
   title?: string;
   createdAt: Date;
+  likesCount?: number;
+  likedBy?: string[];
 }

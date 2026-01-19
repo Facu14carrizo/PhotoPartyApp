@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Trash2, Download, Share2, Image as ImageIcon, Package, Heart, MessageCircle } from 'lucide-react';
+import { Trash2, Download, Share2, Image as ImageIcon, Package, Heart } from 'lucide-react';
 import type { Photo } from '../types/Photo';
+import { toggleLike as toggleLikeService } from '../lib/photoService';
 
 interface PhotoFeedProps {
   photos: Photo[];
   onDelete: (id: string) => void;
+  onUpdatePhoto?: (updatedPhoto: Photo) => void;
 }
 
 const PlaceholderImage = () => (
@@ -16,10 +18,9 @@ const PlaceholderImage = () => (
   </div>
 );
 
-export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
+export default function PhotoFeed({ photos, onDelete, onUpdatePhoto }: PhotoFeedProps) {
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [isExporting, setIsExporting] = useState(false);
-  const [likedPhotos, setLikedPhotos] = useState<Set<string>>(new Set());
 
   const formatDateTime = (date: Date) => {
     const now = new Date();
@@ -47,16 +48,44 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
     setImageErrors((prev) => new Set(prev).add(photoId));
   };
 
-  const toggleLike = (photoId: string) => {
-    setLikedPhotos((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(photoId)) {
-        newSet.delete(photoId);
-      } else {
-        newSet.add(photoId);
+  const toggleLike = async (photoId: string) => {
+    console.log(`[PhotoFeed] toggleLike called for photo: ${photoId}`);
+    const currentUser = localStorage.getItem('photoPartyUser');
+    if (!currentUser) {
+      console.warn('[PhotoFeed] No user found in localStorage');
+      return;
+    }
+
+    const photo = photos.find(p => p.id === photoId);
+    if (!photo) return;
+
+    // Optimistic Update
+    const isLiked = photo.likedBy?.includes(currentUser);
+    const newLikedBy = isLiked
+      ? (photo.likedBy || []).filter(u => u !== currentUser)
+      : [...(photo.likedBy || []), currentUser];
+    const newLikesCount = isLiked
+      ? Math.max(0, (photo.likesCount || 0) - 1)
+      : (photo.likesCount || 0) + 1;
+
+    if (onUpdatePhoto) {
+      onUpdatePhoto({
+        ...photo,
+        likesCount: newLikesCount,
+        likedBy: newLikedBy
+      });
+    }
+
+    try {
+      const success = await toggleLikeService(photoId, currentUser);
+      if (!success) {
+        console.error('[PhotoFeed] toggleLikeService returned false');
+        // Revert optimistic update if needed (will be handled by real-time sync eventually, 
+        // but for now it helps pinpoint errors)
       }
-      return newSet;
-    });
+    } catch (error) {
+      console.error('[PhotoFeed] Error in toggleLikeService:', error);
+    }
   };
 
   const downloadPhoto = (photo: Photo) => {
@@ -193,7 +222,7 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
                 <div className="flex items-center gap-4 mb-3">
                   <button
                     onClick={() => toggleLike(photo.id)}
-                    className={`transition-all duration-200 ${likedPhotos.has(photo.id)
+                    className={`flex items-center gap-1.5 transition-all duration-200 ${photo.likedBy?.includes(localStorage.getItem('photoPartyUser') || '')
                       ? 'text-red-500 scale-110'
                       : 'text-gray-400 hover:text-red-400 hover:scale-110'
                       }`}
@@ -201,9 +230,12 @@ export default function PhotoFeed({ photos, onDelete }: PhotoFeedProps) {
                   >
                     <Heart
                       size={24}
-                      fill={likedPhotos.has(photo.id) ? 'currentColor' : 'none'}
+                      fill={photo.likedBy?.includes(localStorage.getItem('photoPartyUser') || '') ? 'currentColor' : 'none'}
                       className="transition-all"
                     />
+                    {photo.likesCount !== undefined && photo.likesCount > 0 && (
+                      <span className="text-sm font-bold">{photo.likesCount}</span>
+                    )}
                   </button>
 
                   <button

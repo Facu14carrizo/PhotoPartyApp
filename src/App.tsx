@@ -65,9 +65,34 @@ function App() {
             userName: newPhoto.user_name,
             title: newPhoto.title || undefined,
             createdAt: new Date(newPhoto.created_at),
+            likesCount: newPhoto.likes_count || 0,
+            likedBy: newPhoto.liked_by || [],
           };
 
           setPhotos((prev) => [photoToAdd, ...prev]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'photos',
+        },
+        (payload: any) => {
+          const updatedPhoto = payload.new;
+          setPhotos((prev) =>
+            prev.map((photo) =>
+              photo.id === updatedPhoto.id
+                ? {
+                  ...photo,
+                  likesCount: updatedPhoto.likes_count || 0,
+                  likedBy: updatedPhoto.liked_by || [],
+                  title: updatedPhoto.title || photo.title,
+                }
+                : photo
+            )
+          );
         }
       )
       .subscribe();
@@ -221,7 +246,13 @@ function App() {
 
       {/* Feed */}
       <main ref={feedContainerRef} className="flex-1 flex flex-col overflow-y-auto scroll-smooth">
-        <PhotoFeed photos={photos} onDelete={handleDelete} />
+        <PhotoFeed
+          photos={photos}
+          onDelete={handleDelete}
+          onUpdatePhoto={(updatedPhoto) => {
+            setPhotos(prev => prev.map(p => p.id === updatedPhoto.id ? updatedPhoto : p));
+          }}
+        />
       </main>
 
       {/* Footer */}
