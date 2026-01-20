@@ -18,6 +18,7 @@ function App() {
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isHidingPreview, setIsHidingPreview] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const previousPhotosCountRef = useRef(0);
@@ -169,9 +170,16 @@ function App() {
     // Preview Logic
     setPreviewImage(imageSrc);
     setShowPreview(true);
+    setIsHidingPreview(false);
+
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(() => {
-      setShowPreview(false);
+      setIsHidingPreview(true);
+      // Wait for exit animation (400ms) before unmounting
+      setTimeout(() => {
+        setShowPreview(false);
+        setIsHidingPreview(false);
+      }, 400);
     }, 3000);
 
     if (consoleEl) {
@@ -395,7 +403,10 @@ function App() {
 
       {/* Preview de foto capturada */}
       {showPreview && previewImage && (
-        <div className="fixed top-20 right-4 z-[100] animate-in slide-in-from-right-4">
+        <div className={`fixed top-20 right-4 z-[100] ${isHidingPreview
+            ? 'fade-out slide-out-to-right-4'
+            : 'animate-in slide-in-from-right-4'
+          }`}>
           <div className="glass-effect p-1 rounded-xl shadow-2xl border border-white/20">
             <div className="relative w-32 h-44 rounded-lg overflow-hidden">
               <img
