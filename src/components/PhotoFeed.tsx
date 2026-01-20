@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Download, Share2, Image as ImageIcon, Heart } from 'lucide-react';
+import { Trash2, Download, Share2, Image as ImageIcon, Heart, X as CloseIcon } from 'lucide-react';
 import type { Photo } from '../types/Photo';
 import { toggleLike as toggleLikeService } from '../lib/photoService';
 
@@ -22,6 +22,7 @@ const PlaceholderImage = () => (
 
 export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser, viewMode }: PhotoFeedProps) {
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   const formatDateTime = (date: Date) => {
     const now = new Date();
@@ -180,8 +181,9 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
                     <img
                       src={photo.imageUrl}
                       alt={photo.title || 'Foto'}
-                      className="w-full h-auto object-contain max-h-[50vh] md:max-h-[70vh]"
+                      className="w-full h-auto object-contain max-h-[50vh] md:max-h-[70vh] cursor-zoom-in"
                       loading="lazy"
+                      onClick={() => setSelectedPhoto(photo)}
                       onError={() => handleImageError(photo.id)}
                     />
                   )}
@@ -272,10 +274,7 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
                     alt={photo.title || 'Foto'}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 cursor-pointer"
                     loading="lazy"
-                    onClick={() => {
-                      // Opcional: Podríamos abrir un modal de vista completa aquí, 
-                      // pero por ahora solo mostramos el album
-                    }}
+                    onClick={() => setSelectedPhoto(photo)}
                     onError={() => handleImageError(photo.id)}
                   />
                 )}
@@ -289,6 +288,92 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center animate-in fade-in duration-300 overflow-hidden backdrop-blur-lg bg-black/40"
+          onClick={() => setSelectedPhoto(null)}
+        >
+
+          {/* Header del Modal */}
+          <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center glass-effect-dark z-[110]">
+            <div className="flex flex-col">
+              <span className="text-white font-bold text-sm">{selectedPhoto.userName || 'PhotoParty'}</span>
+              <span className="text-gray-400 text-xs">{formatDateTime(selectedPhoto.createdAt)}</span>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedPhoto(null);
+              }}
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all transform hover:scale-110"
+            >
+              <CloseIcon size={24} />
+            </button>
+          </div>
+
+          {/* Imagen Full Screen */}
+          <div className="relative w-full h-full flex items-center justify-center p-4 z-[105]">
+            <img
+              src={selectedPhoto.imageUrl}
+              alt={selectedPhoto.title || 'Foto Pantalla Completa'}
+              className="max-w-full max-h-[80vh] object-contain shadow-2xl animate-in zoom-in-95 duration-300"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          {/* Footer del Modal con Acciones */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-center items-center gap-8 glass-effect-dark z-[110]">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleLike(selectedPhoto.id);
+              }}
+              className={`flex flex-col items-center gap-1 transition-all ${selectedPhoto.likedBy?.includes(currentUser) ? 'text-red-500 scale-110' : 'text-gray-400'
+                }`}
+            >
+              <Heart size={28} fill={selectedPhoto.likedBy?.includes(currentUser) ? 'currentColor' : 'none'} />
+              <span className="text-xs font-bold">{selectedPhoto.likesCount || 0}</span>
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                sharePhoto(selectedPhoto);
+              }}
+              className="flex flex-col items-center gap-1 text-gray-400 hover:text-blue-400"
+            >
+              <Share2 size={28} />
+              <span className="text-xs font-bold">Compartir</span>
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                downloadPhoto(selectedPhoto);
+              }}
+              className="flex flex-col items-center gap-1 text-gray-400 hover:text-green-400"
+            >
+              <Download size={28} />
+              <span className="text-xs font-bold">Descargar</span>
+            </button>
+
+            {selectedPhoto.userName === currentUser && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(selectedPhoto.id);
+                  setSelectedPhoto(null);
+                }}
+                className="flex flex-col items-center gap-1 text-gray-400 hover:text-red-400"
+              >
+                <Trash2 size={28} />
+                <span className="text-xs font-bold">Eliminar</span>
+              </button>
+            )}
           </div>
         </div>
       )}
