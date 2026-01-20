@@ -371,7 +371,7 @@ function App() {
             >
               WaveFrame Studio
             </a>{' '}
-            Todos los derechos reservados.
+            | Todos los derechos reservados.
           </p>
         </footer>
       </main>
