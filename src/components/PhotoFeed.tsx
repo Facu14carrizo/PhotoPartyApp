@@ -23,6 +23,7 @@ const PlaceholderImage = () => (
 export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser, viewMode }: PhotoFeedProps) {
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
 
   const formatDateTime = (date: Date) => {
     const now = new Date();
@@ -149,6 +150,14 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
       </div>
     );
   }
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setSelectedPhoto(null);
+      setIsClosing(false);
+    }, 300);
+  };
 
   return (
     <div className="w-full">
@@ -294,12 +303,13 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
 
       {selectedPhoto && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center animate-in fade-in duration-300 overflow-hidden backdrop-blur-lg bg-black/40"
-          onClick={() => setSelectedPhoto(null)}
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden backdrop-blur-lg bg-black/40 transition-all duration-300 ${isClosing ? 'fade-out' : 'animate-in fade-in duration-500'
+            }`}
+          onClick={handleClose}
         >
-
           {/* Header del Modal */}
-          <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center glass-effect-dark z-[110]">
+          <div className={`absolute top-0 left-0 right-0 p-4 flex justify-between items-center glass-effect-dark z-[110] transition-transform duration-300 ${isClosing ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'
+            }`}>
             <div className="flex flex-col">
               <span className="text-white font-bold text-sm">{selectedPhoto.userName || 'PhotoParty'}</span>
               <span className="text-gray-400 text-xs">{formatDateTime(selectedPhoto.createdAt)}</span>
@@ -307,7 +317,7 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedPhoto(null);
+                handleClose();
               }}
               className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all transform hover:scale-110"
             >
@@ -320,13 +330,15 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
             <img
               src={selectedPhoto.imageUrl}
               alt={selectedPhoto.title || 'Foto Pantalla Completa'}
-              className="max-w-full max-h-[80vh] object-contain shadow-2xl animate-in zoom-in-95 duration-300"
+              className={`max-w-full max-h-[80vh] object-contain shadow-2xl transition-all duration-300 ${isClosing ? 'zoom-out' : 'animate-in zoom-in-95 duration-500'
+                }`}
               onClick={(e) => e.stopPropagation()}
             />
           </div>
 
           {/* Footer del Modal con Acciones */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-center items-center gap-8 glass-effect-dark z-[110]">
+          <div className={`absolute bottom-0 left-0 right-0 p-6 flex justify-center items-center gap-8 glass-effect-dark z-[110] transition-transform duration-300 ${isClosing ? 'translate-y-full opacity-0' : 'translate-y-0 opacity-100'
+            }`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -366,7 +378,7 @@ export default function PhotoFeed({ photos, onDelete, onUpdatePhoto, currentUser
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(selectedPhoto.id);
-                  setSelectedPhoto(null);
+                  handleClose();
                 }}
                 className="flex flex-col items-center gap-1 text-gray-400 hover:text-red-400"
               >
